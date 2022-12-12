@@ -16,6 +16,9 @@ namespace CatchGame
         int heroSpeed = 10;
 
         List<Rectangle> balls = new List<Rectangle>();
+        List<int> ballSpeeds = new List<int>();
+        List<string> ballColours = new List<string>();
+
         int ballSize = 10;
         int ballSpeed = 7;
 
@@ -27,6 +30,8 @@ namespace CatchGame
 
         SolidBrush greenBrush = new SolidBrush(Color.Green);
         SolidBrush whiteBrush = new SolidBrush(Color.White);
+        SolidBrush yellowBrush = new SolidBrush(Color.Yellow);
+        SolidBrush redBrush = new SolidBrush(Color.Red);
 
         Random randGen = new Random();
         int randValue = 0;
@@ -82,7 +87,7 @@ namespace CatchGame
             //move ball objects
             for (int i = 0; i < balls.Count; i++)
             {
-                int y = balls[i].Y + ballSpeed;
+                int y = balls[i].Y + ballSpeeds[i];
                 balls[i] = new Rectangle(balls[i].X, y, ballSize, ballSize);
             }
 
@@ -90,9 +95,23 @@ namespace CatchGame
             randValue = randGen.Next(1, 101);
 
             //generate new ball if it is time
-            if (randValue < 11)
+            if (randValue < 3)
             {
                 balls.Add(new Rectangle(randGen.Next(0, this.Width - ballSize), 0, ballSize, ballSize));
+                ballColours.Add("red");
+                ballSpeeds.Add(16);
+            }
+            else if (randValue < 8)
+            {
+                balls.Add(new Rectangle(randGen.Next(0, this.Width - ballSize), 0, ballSize, ballSize));
+                ballColours.Add("yellow");
+                ballSpeeds.Add(12);
+            }
+            else if (randValue < 20)
+            {
+                balls.Add(new Rectangle(randGen.Next(0, this.Width - ballSize), 0, ballSize, ballSize));
+                ballColours.Add("green");
+                ballSpeeds.Add(4);
             }
 
             //remove ball if it goes off the screen, (test at y = 400)
@@ -100,7 +119,9 @@ namespace CatchGame
             {
                 if (balls[i].Y >= this.Height)
                 {
-                    balls.Remove(balls[i]);
+                    balls.RemoveAt(i);
+                    ballColours.RemoveAt(i);
+                    ballSpeeds.RemoveAt(i);
                 }
             }
 
@@ -109,8 +130,23 @@ namespace CatchGame
             {
                 if (hero.IntersectsWith(balls[i]))
                 {
-                    balls.Remove(balls[i]);
-                    score = score + 5;  // score += 5;
+                    if (ballColours[i] == "green")
+                    {
+                        score = score + 5;  // score += 5;
+                    }
+                    else if (ballColours[i] == "yellow")
+                    {
+                        time = time + 50;
+                    }
+                    else if (ballColours[i] == "red")
+                    {
+                        score = score - 10;
+                    }
+
+                    balls.RemoveAt(i);
+                    ballColours.RemoveAt(i);
+                    ballSpeeds.RemoveAt(i);
+                    
                 }
             }
 
@@ -142,7 +178,18 @@ namespace CatchGame
             //draw balls
             for (int i = 0; i < balls.Count(); i++)
             {
-                e.Graphics.FillEllipse(greenBrush, balls[i]);
+                if (ballColours[i] == "green")
+                {
+                    e.Graphics.FillEllipse(greenBrush, balls[i]);
+                }
+                else if (ballColours[i] == "red")
+                {
+                    e.Graphics.FillEllipse(redBrush, balls[i]);
+                }
+                else if (ballColours[i] == "yellow")
+                {
+                    e.Graphics.FillEllipse(yellowBrush, balls[i]);
+                }
             }
 
         }
